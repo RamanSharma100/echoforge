@@ -1,0 +1,16 @@
+{
+    "name": "ramansharma100/echoforge",
+    "autoload": {
+        "psr-4": {
+            "Forge\\": "./",
+            "App\\": "./app"
+        }
+    },
+    "authors": [
+        {
+            "name": "Raman Sharma",
+            "email": "techraman100@gmail.com"
+        }
+    ],
+    "require": {}
+}
