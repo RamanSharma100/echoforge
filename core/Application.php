@@ -22,6 +22,11 @@ class Application
         );
     }
 
+    public function loadWebRoutes()
+    {
+        require_once self::$ROOT_DIR . '/routes/web.php';
+    }
+
     public function run()
     {
         $this->router->resolve();

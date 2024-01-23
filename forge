@@ -1,0 +1,11 @@
+#!/usr/bin/env php
+
+<?php
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+$cmd = require_once __DIR__ . '/weave/app.php';
+
+$cmd->registerCommands();
+
+$cmd->app->run();

@@ -12,5 +12,8 @@
             "email": "techraman100@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "symfony/console": "^6.4",
+        "vlucas/phpdotenv": "^5.6"
+    }
 }

@@ -17,9 +17,11 @@ class Router
         $this->response = $response;
     }
 
-    public function get($path, $callback,)
+    public function get($path, $callback)
     {
         $this->routes['get'][$path] = $callback;
+
+        return $this;
     }
 
     public function resolve()
@@ -28,9 +30,15 @@ class Router
         $method = $this->request->getMethod();
         $callback = $this->routes[$method][$path] ?? false;
 
-        // check id the route is parameterized
+        // check if the route is parameterized using :param in the route
+        // $parametrizedRoute = false;
 
-
+        // if(
+        //     strpos($path, ':') !== false
+        //     && strpos($path, ':') === 0
+        // ) {
+        //     $parametrizedRoute = true;
+        // }
 
         if ($callback === false) {
             foreach ($this->routes[$method] as $route => $callback) {
@@ -53,15 +61,6 @@ class Router
                     exit;
                 }
             }
-        }
-
-        if (is_object($callback)) {
-            if (!method_exists($callback, '__invoke')) {
-                $this->response->setStatusCode(404);
-                echo "The method __invoke does not exist";
-                exit;
-            }
-            return Closure::fromCallable($callback)->call($this->request, $this->response);
         }
 
         if (is_string($callback)) {
@@ -140,7 +139,13 @@ class Router
 
     public function renderViewWithoutLayout($view)
     {
+        ob_start();
 
         include_once Application::$ROOT_DIR . "/views/$view.php";
+
+        ob_end_flush();
+
+        // close the request
+        exit;
     }
 }
