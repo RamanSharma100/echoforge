@@ -4,6 +4,17 @@ namespace Forge\core;
 
 use Closure;
 
+
+function view($view, $params = [])
+{
+    $view = str_replace('.', '/', $view);
+    $view = Application::$ROOT_DIR . "/views/$view.php";
+    extract($params);
+    ob_start();
+    include_once $view;
+    return ob_get_clean();
+}
+
 class Router
 {
 
@@ -20,6 +31,13 @@ class Router
     public function get($path, $callback)
     {
         $this->routes['get'][$path] = $callback;
+
+        return $this;
+    }
+
+    public function post($path, $callback)
+    {
+        $this->routes['post'][$path] = $callback;
 
         return $this;
     }
@@ -144,8 +162,5 @@ class Router
         include_once Application::$ROOT_DIR . "/views/$view.php";
 
         ob_end_flush();
-
-        // close the request
-        exit;
     }
 }

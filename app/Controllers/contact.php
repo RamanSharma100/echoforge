@@ -2,12 +2,14 @@
 
 namespace App\Controllers;
 
+use function Forge\core\view;
+
 class Contact
 {
 
     public function index()
     {
-        echo "Contact Us";
+        view('contact');
     }
 
     public function form()

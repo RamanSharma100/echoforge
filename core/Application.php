@@ -2,6 +2,14 @@
 
 namespace Forge\core;
 
+function dd($data)
+{
+    echo "<pre>";
+    var_dump($data);
+    echo "</pre>";
+    die();
+}
+
 class Application
 {
     public Router $router;
