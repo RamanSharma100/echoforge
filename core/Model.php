@@ -9,7 +9,7 @@ use Forge\core\utils\MigrationParser;
 class Model extends Database
 {
 
-    protected $table, $attributes, $migration, $fillable = [], $gaurded = [];
+    protected $table, $attributes, $migration;
     private Console|null $console = null;
 
     public function __construct()

@@ -12,7 +12,8 @@ class Kernel
     public $app;
 
     protected $commands = [
-        Commands\ServerCommand::class
+        Commands\ServerCommand::class,
+        Commands\FabricateCommand::class
     ];
 
     public function __construct()
@@ -42,8 +43,16 @@ class Kernel
     {
         $this->app = new \Symfony\Component\Console\Application();
 
+
+
         foreach ($this->commands as $command) {
             $this->app->add(new $command);
+
+            if (method_exists($command, 'getSubCommands')) {
+                foreach ($command::getSubCommands() as $subCommand) {
+                    $this->app->add(new $subCommand);
+                }
+            }
         }
     }
 }
