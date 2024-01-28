@@ -32,16 +32,7 @@ class MigrationFabricationCommand extends Command
         $output->writeln("<info>Creating Migration: $name</info>");
 
         $migrationFabrication = new MigrationFabrication(
-            $name,
-            [
-                [
-                    'name' => 'id',
-                    'type' => 'int',
-                    'length' => 11,
-                    'auto_increment' => true,
-                    'primary_key' => true
-                ]
-            ]
+            $name
         );
         $migrationFabrication->createMigration();
 

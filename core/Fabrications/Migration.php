@@ -6,13 +6,12 @@ use Forge\core\Console\Console;
 
 class Migration
 {
-    private $tableName, $attributes, $migrationPath;
+    private $tableName, $migrationPath;
     private Console|null $console = null;
 
-    public function __construct($tableName, $attributes)
+    public function __construct($tableName)
     {
         $this->tableName = strtolower($tableName);
-        $this->attributes = $attributes;
         $this->migrationPath = dirname(__DIR__, 2) . '/database/migrations/';
         $this->console = new Console();
     }
@@ -49,13 +48,28 @@ class Migration
 
 
         $migration = fopen($this->migrationPath . 'create' . '_' . $this->tableName . 's.php', 'w');
-        $migrationContent = "<?php \n\nnamespace Forge\database\migrations;\n\nuse Forge\core\Migration;\n\nclass " . ucfirst($this->tableName) . " extends Migration\n{\n public function up()\n {\n \$this->createTable('" . $this->tableName . "', [\n";
-        foreach ($this->attributes as $attribute) {
-            foreach ($attribute as $key => $value) {
-                $migrationContent .= "'" . $key . "' => '" . $value . "',\n";
+        $migrationContent = <<<EOL
+        <?php
+
+        use Forge\core\Migration;
+        use Forge\core\Schema;
+
+        return new class extends Migration
+        {
+            public function up()
+            {
+                Schema::create('{$this->tableName}s', function (\$table) {
+                    \$table->id();
+                });
             }
-        }
-        $migrationContent .= "]);\n }\n\n public function down()\n {\n \$this->dropTable('" . $this->tableName . "');\n }\n}";
+
+            public function down()
+            {
+                \$this->dropTable('{$this->tableName}s');
+            }
+        };
+        EOL;
+
         if (file_exists($this->migrationPath . 'create' . '_' . $this->tableName . '.php')) {
             exit('Migration already exists!!' . PHP_EOL . 'Please check the database/migrations directory');
         }

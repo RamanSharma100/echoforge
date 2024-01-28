@@ -11,8 +11,9 @@ class Database
 
     private Console|null $console = null;
 
-    protected function __construct()
+    public function __construct()
     {
+
         $this->DB_TYPE = $_ENV['DB_TYPE'];
         $this->host = $_ENV['DB_HOST'];
         $this->user = $_ENV['DB_USER'];
@@ -31,7 +32,6 @@ class Database
             !isset($this->dbname)
 
         ) {
-            $this->console->log('Database credentials not set!!' . PHP_EOL . 'Please set the database credentials in .env file!!');
             exit('Database credentials not set!!' . PHP_EOL . 'Please set the database credentials in .env file!!');
         }
         switch ($this->DB_TYPE) {
@@ -53,11 +53,28 @@ class Database
             $this->pdo = new \PDO($dsn, $this->user, $this->pass);
             $this->pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_OBJ);
             $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-            $this->console->log('Database connected successfully!!');
             return $this->pdo;
         } catch (\PDOException $e) {
             $this->error = $e->getMessage();
-            exit($e->getMessage());
+            if (
+                strpos($this->error, "SQLSTATE[HY000] [1049] Unknown database") !== false
+            ) {
+                $this->console->log('Database not found!!' . PHP_EOL . 'Creating database...');
+                $this->pdo = new \PDO('mysql:host=' . $this->host, $this->user, $this->pass);
+                $this->pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_OBJ);
+                $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+                $this->pdo->exec("CREATE DATABASE IF NOT EXISTS " . $this->dbname);
+                $this->console->log('Database created successfully!!');
+                $this->console->log("Connecting to database...");
+                $this->pdo = new \PDO($dsn, $this->user, $this->pass);
+                $this->pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_OBJ);
+                $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+                $this->console->log('Database connected successfully!!');
+                return $this->pdo;
+            } else {
+
+                exit($e->getMessage());
+            }
         }
     }
 
@@ -66,7 +83,7 @@ class Database
         $this->pdo = null;
     }
 
-    protected function query($sql, $params = [])
+    public function query($sql, $params = [])
     {
         $stmt = $this->makeConnection()->prepare($sql);
         $stmt->execute($params);

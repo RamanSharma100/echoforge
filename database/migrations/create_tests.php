@@ -1,24 +1,22 @@
 <?php
 
-namespace Forge\database\migrations;
-
 use Forge\core\Migration;
+use Forge\core\Schemas\Schema;
 
-class Test extends Migration
+return new class extends Migration
 {
     public function up()
     {
-        $this->createTable('test', [
-            'name' => 'id',
-            'type' => 'int',
-            'length' => '11',
-            'auto_increment' => '1',
-            'primary_key' => '1',
-        ]);
+        Schema::create('test', function ($table) {
+            $table->id();
+            $table->string('name', 255);
+            $table->integer('age');
+            $table->text('bio');
+        });
     }
 
     public function down()
     {
         $this->dropTable('test');
     }
-}
+};

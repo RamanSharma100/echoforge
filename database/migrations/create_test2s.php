@@ -7,16 +7,13 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('user', function ($table) {
+        Schema::create('test2s', function ($table) {
             $table->id();
-            $table->string('name', 255);
-            $table->string('email', 255);
-            $table->string('password', 255);
         });
     }
 
     public function down()
     {
-        $this->dropTable('user');
+        $this->dropTable('test2s');
     }
 };

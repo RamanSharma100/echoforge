@@ -13,7 +13,8 @@ class Kernel
 
     protected $commands = [
         Commands\ServerCommand::class,
-        Commands\FabricateCommand::class
+        Commands\FabricateCommand::class,
+        Commands\MigrationCommand::class,
     ];
 
     public function __construct()
