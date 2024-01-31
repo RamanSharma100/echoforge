@@ -2,6 +2,23 @@
 
 namespace Forge\core;
 
+
+
+function is_date($date)
+{
+    return (bool) strtotime($date);
+}
+
+function is_datetime($datetime)
+{
+    return (bool) strtotime($datetime);
+}
+
+function is_time($time)
+{
+    return (bool) strtotime($time);
+}
+
 class Request
 {
 
@@ -36,14 +53,13 @@ class Request
     {
         $body = [];
         if ($this->getMethod() === 'get') {
-            foreach ($_GET as $key => $value) {
-                $body[$key] = filter_input(INPUT_GET, $key, FILTER_SANITIZE_SPECIAL_CHARS);
-            }
+            $body = $_GET;
         }
 
         if ($this->getMethod() === 'post') {
-            foreach ($_POST as $key => $value) {
-                $body[$key] = filter_input(INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS);
+            $body = filter_input_array(INPUT_POST, FILTER_SANITIZE_SPECIAL_CHARS);
+            if (empty($body)) {
+                $body = json_decode(file_get_contents('php://input'), true);
             }
         }
 
@@ -228,5 +244,109 @@ class Request
     public function getForwardedProto()
     {
         return $this->getServer('HTTP_FORWARDED_PROTO');
+    }
+
+    public function validate(
+        Request $request,
+        array $rules,
+    ) {
+        $errors = [];
+        $attributes = $request->getBody();
+        foreach ($rules as $key => $rule) {
+            $rule = explode('|', $rule);
+
+            foreach ($rule as $r) {
+                if ($r == 'required') {
+                    if (empty($attributes[$key])) {
+                        $errors[$key] = 'The ' . $key . ' field is required';
+                        break;
+                        break;
+                    }
+                }
+                if ($r == 'string') {
+                    if (
+                        !is_string($attributes[$key])
+                        || is_numeric($attributes[$key])
+                    ) {
+                        $errors[$key] = 'The ' . $key . ' field must be a string';
+                        break;
+                    }
+                }
+                if ($r == 'integer') {
+                    if (
+                        !is_numeric($attributes[$key]) ||
+                        !is_int($attributes[$key])
+                    ) {
+                        $errors[$key] = 'The ' . $key . ' field must be an integer';
+                        break;
+                    }
+                }
+                if ($r == 'boolean') {
+                    if (!is_bool($attributes[$key])) {
+                        $errors[$key] = 'The ' . $key . ' field must be a boolean';
+                        break;
+                    }
+                }
+                if ($r == 'array') {
+                    if (!is_array($attributes[$key])) {
+                        $errors[$key] = 'The ' . $key . ' field must be an array';
+                        break;
+                    }
+                }
+                if ($r == 'date') {
+                    if (!is_date($attributes[$key])) {
+                        $errors[$key] = 'The ' . $key . ' field must be a date';
+                        break;
+                    }
+                }
+                if ($r == 'datetime') {
+                    if (!is_datetime($attributes[$key])) {
+                        $errors[$key] = 'The ' . $key . ' field must be a datetime';
+                        break;
+                    }
+                }
+                if ($r == 'time') {
+                    if (!is_time($attributes[$key])) {
+                        $errors[$key] = 'The ' . $key . ' field must be a time';
+                        break;
+                    }
+                }
+                if ($r == 'url') {
+                    if (!filter_var($attributes[$key], FILTER_VALIDATE_URL)) {
+                        $errors[$key] = 'The ' . $key . ' field is not a valid url';
+                        break;
+                    }
+                }
+                if ($r == 'email') {
+                    if (!filter_var($attributes[$key], FILTER_VALIDATE_EMAIL)) {
+                        $errors[$key] = 'The ' . $key . ' field is not a valid email';
+                        break;
+                    }
+                }
+                if (str_contains($r, 'min')) {
+                    $min = explode(':', $r)[1];
+                    if (strlen($attributes[$key]) < $min) {
+                        $errors[$key] = 'The ' . $key . ' field must be at least ' . $min . ' characters';
+                        break;
+                    }
+                }
+                if (str_contains($r, 'max')) {
+                    $max = explode(':', $r)[1];
+                    if (strlen($attributes[$key]) > $max) {
+                        $errors[$key] = 'The ' . $key . ' field must be at most ' . $max . ' characters';
+                        break;
+                    }
+                }
+                if (str_contains($r, 'unique')) {
+                    $unique = explode(':', $r)[1];
+                    $model = new $unique();
+                    if ($model->where($key, $attributes[$key])->first()) {
+                        $errors[$key] = 'The ' . $key . ' field must be unique';
+                        break;
+                    }
+                }
+            }
+        }
+        return $errors;
     }
 }

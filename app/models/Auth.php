@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Forge\core\Model;
 
-class Test extends Model
+class Auth extends Model
 {
 
 

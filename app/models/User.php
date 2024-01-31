@@ -2,6 +2,11 @@
 
 namespace Forge\core;
 
-class Model
+use Forge\core\Model;
+
+class User extends Model
 {
+    protected $fillable = [];
+
+    protected $gaurded = [];
 }

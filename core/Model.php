@@ -6,6 +6,8 @@ use Closure;
 use Forge\core\Console\Console;
 use Forge\core\utils\MigrationParser;
 
+
+
 class Model extends Database
 {
 

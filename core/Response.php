@@ -10,4 +10,11 @@ class Response
     {
         http_response_code($code);
     }
+
+    public function json(array $data, int $code)
+    {
+        $this->setStatusCode($code);
+        header('Content-Type: application/json');
+        echo json_encode($data);
+    }
 }

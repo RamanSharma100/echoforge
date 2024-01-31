@@ -24,17 +24,17 @@ class Model
     public function createModel()
     {
 
-        if (file_exists($this->modelPath . $this->tableName . '.php')) {
+        if (file_exists($this->modelPath . ucfirst($this->tableName) . '.php')) {
             exit('Model already exists!!' . PHP_EOL . 'Please check the app/Models directory');
         }
-        $model = fopen($this->modelPath . $this->tableName . '.php', 'w');
+        $model = fopen($this->modelPath . ucfirst($this->tableName) . '.php', 'w');
         $modelContent = "<?php \n\nnamespace App\Models;\n\nuse Forge\core\Model;\n\nclass " . ucfirst($this->tableName) . " extends Model\n{\n\n\n protected \$fillable = [];  \n\n\n protected \$gaurded = []; \n}";
 
         fwrite($model, $modelContent);
         fclose($model);
 
         $this->console->log('Model created successfully!!' . PHP_EOL);
-        $this->console->log('Created file: ' . $this->modelPath . $this->tableName . '.php' . PHP_EOL);
+        $this->console->log('Created file: ' . $this->modelPath . ucfirst($this->tableName) . '.php' . PHP_EOL);
         $this->console->log('Please check the app/Models directory' . PHP_EOL);
     }
 
