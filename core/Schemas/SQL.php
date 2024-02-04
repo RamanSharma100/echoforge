@@ -17,18 +17,31 @@ class SQL
 
     public function id($columnName = 'id')
     {
-        return $this->increments($columnName);
-    }
-
-    public function increments($columnName)
-    {
         $this->columns[] = [
             'name' => $columnName,
             'type' => 'INT',
             'length' => 11,
-            'auto_increment' => true,
-            'primary_key' => true,
+            'auto_increment' => false,
+            'primary_key' => false,
         ];
+        return $this;
+    }
+
+    public function auto_increment()
+    {
+        end($this->columns);
+        $key = key($this->columns);
+        $this->columns[$key]['auto_increment'] = true;
+        reset($this->columns);
+        return $this;
+    }
+
+    public function primary()
+    {
+        end($this->columns);
+        $key = key($this->columns);
+        $this->columns[$key]['primary_key'] = true;
+        reset($this->columns);
         return $this;
     }
 
@@ -42,21 +55,65 @@ class SQL
         return $this;
     }
 
-    public function integer($columnName)
+    public function integer($columnName, $length = 11)
     {
         $this->columns[] = [
             'name' => $columnName,
             'type' => 'INT',
-            'length' => 11,
+            'length' => $length,
         ];
         return $this;
     }
 
-    public function text($columnName)
+    public function text($columnName, $length = 255)
     {
         $this->columns[] = [
             'name' => $columnName,
             'type' => 'TEXT',
+            'length' => $length,
+        ];
+        return $this;
+    }
+
+    public function longText($columnName)
+    {
+        $this->columns[] = [
+            'name' => $columnName,
+            'type' => 'LONGTEXT',
+        ];
+        return $this;
+    }
+
+    public function enum($columnName, $values = [])
+    {
+        $this->columns[] = [
+            'name' => $columnName,
+            'type' => 'ENUM',
+            'values' => $values,
+        ];
+        return $this;
+    }
+
+    public function default($value)
+    {
+        end($this->columns);
+        $key = key($this->columns);
+        $this->columns[$key]['default'] = $value;
+        reset($this->columns);
+        return $this;
+    }
+
+    public function timestamps()
+    {
+        $this->columns[] = [
+            'name' => 'created_at',
+            'type' => 'TIMESTAMP',
+            'default' => 'CURRENT_TIMESTAMP',
+        ];
+        $this->columns[] = [
+            'name' => 'updated_at',
+            'type' => 'TIMESTAMP',
+            'default' => 'CURRENT_TIMESTAMP',
         ];
         return $this;
     }
@@ -130,31 +187,22 @@ class SQL
         return $this;
     }
 
-    public function primary($columnName)
+
+    public function unique()
     {
-        $this->columns[] = [
-            'name' => $columnName,
-            'primary_key' => true,
-        ];
+        end($this->columns);
+        $key = key($this->columns);
+        $this->columns[$key]['unique'] = true;
+        reset($this->columns);
         return $this;
     }
 
-    public function unique($columnName)
+    public function nullable()
     {
-        $this->columns[] = [
-            'name' => $columnName,
-            'unique' => true,
-        ];
-        return $this;
-    }
-
-    public function nullable($columnName)
-    {
-        foreach ($this->columns as &$column) {
-            if ($column['name'] === $columnName) {
-                $column['nullable'] = true;
-            }
-        }
+        end($this->columns);
+        $key = key($this->columns);
+        $this->columns[$key]['nullable'] = true;
+        reset($this->columns);
         return $this;
     }
 
@@ -188,6 +236,26 @@ class SQL
             if (isset($column['unique'])) {
                 $this->SQL .= " UNIQUE";
             }
+
+            if (isset($column['default'])) {
+                if (
+                    $column['default'] == 'CURRENT_TIMESTAMP'
+                ) {
+                    $this->SQL .= " DEFAULT " . $column['default'];
+                } else {
+                    $this->SQL .= " DEFAULT '" . $column['default'] . "'";
+                }
+            }
+
+            if (isset($column['values'])) {
+                $this->SQL .= " (";
+                foreach ($column['values'] as $value) {
+                    $this->SQL .= "'" . $value . "',";
+                }
+                $this->SQL = rtrim($this->SQL, ",");
+                $this->SQL .= ")";
+            }
+
             $this->SQL .= ",";
         }
         $this->SQL = rtrim($this->SQL, ",");

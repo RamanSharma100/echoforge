@@ -1,6 +1,6 @@
 <?php
 
-namespace Forge\core;
+namespace App\Models;
 
 use Forge\core\Model;
 

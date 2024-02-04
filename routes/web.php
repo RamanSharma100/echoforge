@@ -5,7 +5,20 @@ use App\Controllers\Contact;
 
 Route::get('/', "home");
 
-Route::get('/login', "login");
+Route::get('/home', function ($request, $response) {
+    return $response->render('home');
+});
+
+Route::get('/register', function () {
+    return "Register";
+});
+
+Route::get('/login', function ($request, $response) {
+    return $response->render('login', [
+        'errors' => [],
+        'old' => []
+    ]);
+});
 
 Route::post('/login', "login@store");
 

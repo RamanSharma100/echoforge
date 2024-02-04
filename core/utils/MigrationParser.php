@@ -36,23 +36,8 @@ class MigrationParser
             $this->migrationPath
         );
 
-        preg_match_all(
-            '/\$this->table\(\'' . $this->tableName . '\'\)->create\((.*?)\);/s',
-            $contents,
-            $matches
-        );
 
-        $attributes = explode(',', $matches[1][0]);
-
-        foreach ($attributes as $attribute) {
-            $attribute = trim($attribute);
-            $attribute = str_replace("'", "", $attribute);
-            $attribute = str_replace(")", "", $attribute);
-            $attribute = str_replace("(", "", $attribute);
-            $attribute = str_replace(";", "", $attribute);
-            $attribute = explode(',', $attribute);
-            $this->attributes[$attribute[0]] = $attribute[1];
-        }
+        print_r($contents);
 
         return $this->attributes;
     }

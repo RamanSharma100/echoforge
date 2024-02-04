@@ -5,15 +5,7 @@ namespace Forge\core;
 use Closure;
 
 
-function view($view, $params = [])
-{
-    $view = str_replace('.', '/', $view);
-    $view = Application::$ROOT_DIR . "/views/$view.php";
-    extract($params);
-    ob_start();
-    include_once $view;
-    return ob_get_clean();
-}
+
 
 class Router
 {
@@ -145,6 +137,23 @@ class Router
                 $this->response
             );
         }
+
+        if (is_object($callback)) {
+            $returned = $callback($this->request, $this->response);
+
+            if (is_string($returned)) {
+                die($returned);
+            }
+
+            if (is_array($returned)) {
+                echo json_encode($returned);
+            }
+
+            if (is_object($returned)) {
+                return $returned;
+            }
+        }
+
 
         echo Closure::fromCallable($callback)->call($this->request, $this->response);
     }

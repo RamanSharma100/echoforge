@@ -8,6 +8,7 @@ class Database
 {
 
     private $DB_TYPE, $host, $user, $pass, $dbname, $pdo, $error, $stmt;
+    private $table, $conditions, $fillables, $gaurded;
 
     private Console|null $console = null;
 
@@ -20,6 +21,12 @@ class Database
         $this->pass = $_ENV['DB_PASS'];
         $this->dbname = $_ENV['DB_NAME'];
         $this->console = new Console();
+    }
+
+    public function table($table)
+    {
+        $this->table = $table;
+        return $this;
     }
 
     protected function makeConnection()
@@ -82,6 +89,67 @@ class Database
     {
         $this->pdo = null;
     }
+
+    private function makeEmpty()
+    {
+        $this->table = null;
+        $this->conditions = null;
+        $this->fillables = null;
+        $this->gaurded = null;
+    }
+
+    private function removeGaurded($data)
+    {
+        if ($this->gaurded) {
+            foreach ($this->gaurded as $gaurded) {
+                if (array_key_exists($gaurded, $data)) {
+                    unset($data[$gaurded]);
+                }
+            }
+        }
+        return $data;
+    }
+
+    public function fillables($fillables)
+    {
+        $this->fillables = $fillables;
+        return $this;
+    }
+
+    public function gaurded($gaurded)
+    {
+        $this->gaurded = $gaurded;
+        return $this;
+    }
+
+    public function first()
+    {
+
+
+        $conditions = implode(' AND ', $this->conditions);
+        print_r("SELECT * FROM $this->table WHERE $conditions LIMIT 1" . PHP_EOL);
+        $this->stmt = $this->query("SELECT * FROM $this->table WHERE $conditions LIMIT 1");
+        $result = $this->fetch(
+            \PDO::FETCH_ASSOC
+        );
+
+        if ($result) {
+            $this->makeEmpty();
+            print_r($result);
+            return $result;
+        } else {
+            $this->makeEmpty();
+            return null;
+        }
+    }
+
+    public function where($column, $operator, $value)
+    {
+        $this->conditions[] = "$column $operator '$value'";
+        return $this;
+    }
+
+
 
     public function query($sql, $params = [])
     {

@@ -2,12 +2,26 @@
 
 namespace Forge\core;
 
+use Dotenv\Dotenv;
+
 function dd($data)
 {
     echo "<pre>";
     var_dump($data);
     echo "</pre>";
     die();
+}
+
+function view($view, $params = [])
+{
+    header('Content-Type: text/html');
+
+    $view = str_replace('.', '/', $view);
+    $view = Application::$ROOT_DIR . "/views/$view.php";
+    extract($params);
+    ob_start();
+    include_once $view;
+    return ob_end_flush();
 }
 
 class Application
@@ -21,6 +35,7 @@ class Application
 
     public function __construct()
     {
+        $this->loadEnv(dirname(__DIR__));
         self::$ROOT_DIR = dirname(__DIR__);
         self::$app = $this;
         $this->request = new Request();
@@ -29,6 +44,13 @@ class Application
             $this->request,
             $this->response
         );
+        $this->db = new Database();
+    }
+
+    private function loadEnv(string $path)
+    {
+        $dotenv = Dotenv::createImmutable($path);
+        $dotenv->load();
     }
 
     public function loadWebRoutes()

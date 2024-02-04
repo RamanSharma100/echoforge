@@ -2,28 +2,31 @@
 
 namespace App\Controllers;
 
+use App\Models\User;
+
+
 class Login
 {
+
 
     public function store($request, $response)
     {
         $data = $request->getBody();
 
-        $validation = $request->validate($request, [
-            'username' => 'required|string',
+        $errors = $request->validate($request, [
+            'email' => 'required|email',
             'password' => 'required|string'
         ]);
 
-        if (count($validation) > 0) {
-            return $response->json([
-                'status' => 'error',
-                'message' => 'Validation error',
-                'errors' => $validation
-            ], 422);
+        if (count($errors) > 0) {
+            return $response->render('login', [
+                'errors' => $errors,
+                'old' => $data
+            ]);
         }
 
-        echo "<pre>";
-        var_dump($data);
-        echo "</pre>";
+        $user = User::where('email', "=", $data['email'])->first();
+
+        // print_r($user);
     }
 }

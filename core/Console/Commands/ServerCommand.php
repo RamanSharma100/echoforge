@@ -67,7 +67,7 @@ class ServerCommand extends Command
         // $path = $_ENV['APP_BASE_PATH'] ?? dirname(dirname(__DIR__));
         // passThru("cd " . $path . "/public");
 
-        $command = "php -S {$host}:{$port} -t public";
+        $command = "php -S {$host}:{$port} -t public -d display_errors=1 -d error_reporting=E_ALL";
 
         if ($open) {
             $command .= " && open {$url}";
