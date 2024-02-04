@@ -8,5 +8,7 @@ class User extends Model
 {
     protected $fillable = [];
 
-    protected $gaurded = [];
+    protected $gaurded = [
+        'password'
+    ];
 }

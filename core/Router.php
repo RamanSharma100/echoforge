@@ -37,6 +37,9 @@ class Router
     public function resolve()
     {
         $path = $this->request->getPath();
+        if ($path !== '/' && substr($path, -1) === '/') {
+            $path = rtrim($path, '/');
+        }
         $method = $this->request->getMethod();
         $callback = $this->routes[$method][$path] ?? false;
 
@@ -130,6 +133,16 @@ class Router
                 $this->response->setStatusCode(404);
                 echo "The method $callback[1] does not exist";
                 exit;
+            }
+            if (is_string($callback[0]->{$callback[1]}(
+                $this->request,
+                $this->response
+            ))) {
+                echo $callback[0]->{$callback[1]}(
+                    $this->request,
+                    $this->response
+                );
+                return;
             }
 
             return $callback[0]->{$callback[1]}(

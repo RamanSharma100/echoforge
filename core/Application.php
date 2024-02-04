@@ -55,6 +55,11 @@ class Application
 
     public function loadWebRoutes()
     {
+
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
         require_once self::$ROOT_DIR . '/routes/web.php';
     }
 

@@ -2,6 +2,7 @@
 
 use Forge\core\Route;
 use App\Controllers\Contact;
+use Forge\core\Controllers\Auth;
 
 Route::get('/', "home");
 
@@ -21,6 +22,11 @@ Route::get('/login', function ($request, $response) {
 });
 
 Route::post('/login', "login@store");
+
+Route::get('/logout', function ($request, $response) {
+    Auth::logout($response);
+    return $response->redirect('/login');
+});
 
 Route::get('/contact', 'contact@index');
 

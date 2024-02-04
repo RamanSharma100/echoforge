@@ -29,7 +29,7 @@ class Controller
         }
 
         $controller = fopen($this->controllerPath . $this->controllerName . '.php', 'w');
-        $controllerContent = "<?php \n\nnamespace App\Controllers;\n\nuse Forge\core\Controller;\n\nclass " . ucfirst($this->controllerName) . " extends Controller\n{\n \n \n}";
+        $controllerContent = "<?php \n\nnamespace App\Controllers;\n\nuse Forge\core\Controllers\Controller;\n\nclass " . ucfirst($this->controllerName) . " extends Controller\n{\n \n \n}";
 
         fwrite($controller, $controllerContent);
         fclose($controller);

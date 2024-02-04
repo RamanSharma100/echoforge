@@ -3,11 +3,12 @@
 namespace App\Controllers;
 
 use App\Models\User;
+use Forge\core\Controllers\Auth;
+use Forge\core\Controllers\Controller;
 
 
-class Login
+class Login extends Controller
 {
-
 
     public function store($request, $response)
     {
@@ -27,6 +28,15 @@ class Login
 
         $user = User::where('email', "=", $data['email'])->first();
 
-        // print_r($user);
+
+
+        if (!$user || !Auth::attempt($data['email'], $data['password'])) {
+            return $response->render('login', [
+                'errors' => ['Invalid email or password. Please try again.'],
+                'old' => $data
+            ]);
+        }
+
+        return $response->redirect('/')->flash('success', 'You are now logged in.');
     }
 }

@@ -29,12 +29,12 @@ class Response
         return $this;
     }
 
-    public function with($key, $value)
+    public function flash($key, $message)
     {
         if (!isset($_SESSION)) {
             session_start();
         }
-        $_SESSION[$key] = $value;
+        $_SESSION[$key] = $message;
         return $this;
     }
 

@@ -2,18 +2,19 @@
 
 namespace App\Controllers;
 
-use function Forge\core\view;
+use Forge\core\Controllers\Controller;
 
-class Contact
+
+class Contact extends Controller
 {
 
     public function index()
     {
-        view('contact');
+        return $this->view('contact');
     }
 
     public function form()
     {
-        echo "Contact Form";
+        return "Contact Form";
     }
 }

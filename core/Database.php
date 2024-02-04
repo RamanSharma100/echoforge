@@ -98,12 +98,40 @@ class Database
         $this->gaurded = null;
     }
 
+    private function checkFillables($data)
+    {
+        if ($this->fillables) {
+            foreach ($data as $key => $value) {
+                if (!in_array($key, $this->fillables)) {
+                    unset($data[$key]);
+                }
+            }
+        }
+        return $data;
+    }
+
     private function removeGaurded($data)
     {
         if ($this->gaurded) {
+
             foreach ($this->gaurded as $gaurded) {
-                if (array_key_exists($gaurded, $data)) {
-                    unset($data[$gaurded]);
+                if (
+                    is_array($data)
+                ) {
+                    if (
+                        array_key_exists(0, $data) &&
+                        is_array($data[0])
+                    ) {
+                        foreach ($data as $key => $value) {
+                            if (array_key_exists($gaurded, $value)) {
+                                unset($data[$key][$gaurded]);
+                            }
+                        }
+                    } else {
+                        if (array_key_exists($gaurded, $data)) {
+                            unset($data[$gaurded]);
+                        }
+                    }
                 }
             }
         }
@@ -125,17 +153,52 @@ class Database
     public function first()
     {
 
+        $query = "SELECT * FROM $this->table";
 
-        $conditions = implode(' AND ', $this->conditions);
-        print_r("SELECT * FROM $this->table WHERE $conditions LIMIT 1" . PHP_EOL);
-        $this->stmt = $this->query("SELECT * FROM $this->table WHERE $conditions LIMIT 1");
+        if ($this->conditions != null) {
+            $conditions = implode(' AND ', $this->conditions);
+            if ($conditions) {
+                $query .= " WHERE $conditions";
+            }
+        }
+        $query .= " LIMIT 1";
+        $this->stmt = $this->query(
+            $query
+        );
         $result = $this->fetch(
             \PDO::FETCH_ASSOC
         );
+        $result = json_decode(json_encode($result), true);
 
         if ($result) {
+            $result = $this->removeGaurded($result);
             $this->makeEmpty();
-            print_r($result);
+            return $result;
+        } else {
+            $this->makeEmpty();
+            return null;
+        }
+    }
+
+    public function all()
+    {
+        $query = "SELECT * FROM $this->table";
+        if (
+            $this->conditions != null
+        ) {
+            $conditions = implode(' AND ', $this->conditions);
+            if ($conditions) {
+                $query .= " WHERE $conditions";
+            }
+        }
+        $this->stmt = $this->query($query);
+        $result = $this->fetchAll(
+            \PDO::FETCH_ASSOC
+        );
+        $result = json_decode(json_encode($result), true);
+        if ($result) {
+            $result = $this->removeGaurded($result);
+            $this->makeEmpty();
             return $result;
         } else {
             $this->makeEmpty();
@@ -148,7 +211,6 @@ class Database
         $this->conditions[] = "$column $operator '$value'";
         return $this;
     }
-
 
 
     public function query($sql, $params = [])
@@ -298,8 +360,6 @@ class Database
         $stmt = $this->query($sql);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
-
-
 
     protected function beginTransaction()
     {
