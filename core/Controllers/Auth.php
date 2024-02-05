@@ -20,6 +20,7 @@ class Auth
                 session_start();
             }
             unset($user['password']);
+
             $_SESSION['user'] = $user;
             return true;
         }

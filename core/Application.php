@@ -3,6 +3,8 @@
 namespace Forge\core;
 
 use Dotenv\Dotenv;
+use Forge\core\Services\Cookie;
+use Forge\core\Services\Session;
 
 function dd($data)
 {
@@ -30,6 +32,8 @@ class Application
     public Request $request;
     public Response $response;
     public Database $db;
+    public Session $session;
+    public Cookie $cookie;
     public static Application $app;
     public static string $ROOT_DIR;
 
@@ -45,6 +49,8 @@ class Application
             $this->response
         );
         $this->db = new Database();
+        $this->session = new Session();
+        $this->cookie = new Cookie();
     }
 
     private function loadEnv(string $path)
