@@ -40,7 +40,7 @@ class Router
         if ($path !== '/' && substr($path, -1) === '/') {
             $path = rtrim($path, '/');
         }
-        $method = $this->request->getMethod();
+        $method = strtolower($this->request->method());
         $callback = $this->routes[$method][$path] ?? false;
 
         // check if the route is parameterized using :param in the route
@@ -70,7 +70,7 @@ class Router
                     $this->request->setParams($params);
                 } else {
                     $this->response->setStatusCode(404);
-                    echo "The route $path does not exist";
+                    echo "The [" . $method . "] route $path does not exist";
                     exit;
                 }
             }
@@ -145,15 +145,12 @@ class Router
                 return;
             }
 
-            return $callback[0]->{$callback[1]}(
-                $this->request,
-                $this->response
-            );
+            $closure = new \ReflectionMethod($callback[0], $callback[1]);
+            return $closure->invoke($callback[0], $this->request, $this->response);
         }
 
         if (is_object($callback)) {
             $returned = $callback($this->request, $this->response);
-
             if (is_string($returned)) {
                 die($returned);
             }

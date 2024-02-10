@@ -79,7 +79,6 @@ class Database
                 $this->console->log('Database connected successfully!!');
                 return $this->pdo;
             } else {
-
                 exit($e->getMessage());
             }
         }
@@ -210,6 +209,26 @@ class Database
     {
         $this->conditions[] = "$column $operator '$value'";
         return $this;
+    }
+
+    public function orWhere($column, $operator, $value)
+    {
+        $this->conditions[] = "OR $column $operator '$value'";
+        return $this;
+    }
+
+    public function andWhere($column, $operator, $value)
+    {
+        $this->conditions[] = "AND $column $operator '$value'";
+        return $this;
+    }
+
+    public function create($data)
+    {
+        $fillable = $this->fillables;
+
+        print_r($fillable . PHP_EOL);
+        print_r($data . PHP_EOL);
     }
 
 

@@ -2,6 +2,8 @@
 
 namespace Forge\core;
 
+use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
+
 
 
 function is_date($date)
@@ -19,7 +21,7 @@ function is_time($time)
     return (bool) strtotime($time);
 }
 
-class Request
+class Request extends SymfonyRequest
 {
 
     private array $params = [];
@@ -34,11 +36,6 @@ class Request
         return substr($path, 0, $position);
     }
 
-    public function getMethod()
-    {
-        return strtolower($_SERVER['REQUEST_METHOD']);
-    }
-
     public function setParams($params)
     {
         $this->params = $params;
@@ -49,17 +46,26 @@ class Request
         return $this->params;
     }
 
+    public function method()
+    {
+        return $_SERVER['REQUEST_METHOD'];
+    }
+
+
     public function getBody()
     {
+
         $body = [];
-        if ($this->getMethod() === 'get') {
+        $method = strtolower($this->method());
+        if ($method == 'get') {
             $body = $_GET;
         }
 
-        if ($this->getMethod() === 'post') {
-            $body = filter_input_array(INPUT_POST, FILTER_SANITIZE_SPECIAL_CHARS);
+        if ($method == 'post') {
+            $body = $this->getPostParams();
             if (empty($body)) {
-                $body = json_decode(file_get_contents('php://input'), true);
+                $body =
+                    json_decode(file_get_contents('php://input'), true, 512, JSON_OBJECT_AS_ARRAY);
             }
         }
 
@@ -156,20 +162,12 @@ class Request
         return $this->getServer('REMOTE_ADDR');
     }
 
-    public function getPort()
-    {
-        return $this->getServer('REMOTE_PORT');
-    }
 
     public function getProtocol()
     {
         return $this->getServer('SERVER_PROTOCOL');
     }
 
-    public function getHost()
-    {
-        return $this->getServer('HTTP_HOST');
-    }
 
     public function getUserAgent()
     {
@@ -266,7 +264,6 @@ class Request
                 if ($r == 'string') {
                     if (
                         !is_string($attributes[$key])
-                        || is_numeric($attributes[$key])
                     ) {
                         $errors[$key] = 'The ' . $key . ' field must be a string';
                         break;
@@ -274,8 +271,7 @@ class Request
                 }
                 if ($r == 'integer') {
                     if (
-                        !is_numeric($attributes[$key]) ||
-                        !is_int($attributes[$key])
+                        !is_numeric($attributes[$key])
                     ) {
                         $errors[$key] = 'The ' . $key . ' field must be an integer';
                         break;

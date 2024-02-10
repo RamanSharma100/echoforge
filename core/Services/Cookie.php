@@ -17,7 +17,7 @@ class Cookie
         // check if user is logged in
         if (!Application::$app->session->get('user')) {
             // check if user has a cookie
-            $token = Application::$app->cookie->get(
+            $token = $this->get(
                 strtolower(substr($APP_NAME, 0, 3) . '_atoken')
             );
 

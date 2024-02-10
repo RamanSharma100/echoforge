@@ -5,7 +5,7 @@ namespace App\Controllers;
 use Forge\core\Controllers\Controller;
 
 
-class Contact extends Controller
+class ContactController extends Controller
 {
 
     public function index()

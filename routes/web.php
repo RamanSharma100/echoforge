@@ -1,8 +1,10 @@
 <?php
 
 use Forge\core\Route;
-use App\Controllers\Contact;
 use Forge\core\Controllers\Auth;
+
+use App\Controllers\UserController;
+use App\Controllers\ContactController;
 
 Route::get('/', "home");
 
@@ -10,9 +12,9 @@ Route::get('/home', function ($request, $response) {
     return $response->render('home');
 });
 
-Route::get('/register', function () {
-    return "Register";
-});
+Route::get('/register', [UserController::class, 'register']);
+
+Route::post('/register', [UserController::class, 'storeRegister']);
 
 Route::get('/login', function ($request, $response) {
     return $response->render('login', [
@@ -21,7 +23,7 @@ Route::get('/login', function ($request, $response) {
     ]);
 });
 
-Route::post('/login', "login@store");
+Route::post('/login', "user@store");
 
 Route::get('/logout', function ($request, $response) {
     Auth::logout($response);
@@ -30,7 +32,7 @@ Route::get('/logout', function ($request, $response) {
 
 Route::get('/contact', 'contact@index');
 
-Route::get('/contact/form', [Contact::class, 'form']);
+Route::get('/contact/form', [ContactController::class, 'form']);
 
 Route::get('/about', function () {
     return "About Us";
