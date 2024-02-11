@@ -6,7 +6,10 @@ use Forge\core\Model;
 
 class User extends Model
 {
-    protected $fillable = [];
+    protected $fillable = [
+        "email",
+        "password",
+    ];
 
     protected $gaurded = [
         'password'

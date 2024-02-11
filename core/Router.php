@@ -4,9 +4,6 @@ namespace Forge\core;
 
 use Closure;
 
-
-
-
 class Router
 {
 
@@ -83,7 +80,13 @@ class Router
 
             $callback = explode('@', $callback);
 
-            $callback[0] = ucfirst($callback[0]);
+            if (
+                strpos(strtolower($callback[0]), 'controller') === false
+            ) {
+                $callback[0] = $callback[0] . 'Controller';
+            }
+
+            $callback[0] = $callback[0];
             try {
                 $controller = "App\\Controllers\\$callback[0]";
 
@@ -134,19 +137,17 @@ class Router
                 echo "The method $callback[1] does not exist";
                 exit;
             }
-            if (is_string($callback[0]->{$callback[1]}(
+
+            $returnData = $callback[0]->{$callback[1]}(
                 $this->request,
                 $this->response
-            ))) {
-                echo $callback[0]->{$callback[1]}(
-                    $this->request,
-                    $this->response
-                );
-                return;
+            );
+
+            if (is_string($returnData)) {
+                die($returnData);
             }
 
-            $closure = new \ReflectionMethod($callback[0], $callback[1]);
-            return $closure->invoke($callback[0], $this->request, $this->response);
+            return $returnData;
         }
 
         if (is_object($callback)) {

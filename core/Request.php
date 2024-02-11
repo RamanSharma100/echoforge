@@ -244,6 +244,53 @@ class Request extends SymfonyRequest
         return $this->getServer('HTTP_FORWARDED_PROTO');
     }
 
+
+
+    public function all()
+    {
+
+
+        $body = $this->getBody();
+        $query = $this->getQueryParams();
+        $params = $this->getParams();
+        $intvalues = array_map('intval', $body);
+
+        return array_merge([
+            'body' => $body,
+            'query' => $query,
+            'params' => $params,
+            'intvalues' => $intvalues
+        ]);
+    }
+
+    public function only($keys)
+    {
+        $body = $this->getBody();
+        $query = $this->getQueryParams();
+        $params = $this->getParams();
+        $intvalues = array_map('intval', $body);
+
+        $all = array([
+            'body' => $body,
+            'query' => $query,
+            'params' => $params,
+            'intvalues' => $intvalues
+        ]);
+
+        $result = [];
+        foreach ($keys as $key) {
+            if (array_key_exists($key, $all)) {
+                $result[$key] = $all[$key];
+            }
+        }
+        return $result;
+    }
+
+    public function getParam($key)
+    {
+        return $this->params[$key] ?? null;
+    }
+
     public function validate(
         Request $request,
         array $rules,
@@ -270,11 +317,15 @@ class Request extends SymfonyRequest
                     }
                 }
                 if ($r == 'integer') {
+                    $integer = filter_var($attributes[$key], FILTER_VALIDATE_INT);
                     if (
-                        !is_numeric($attributes[$key])
+                        !is_numeric($attributes[$key]) ||
+                        !$integer
                     ) {
                         $errors[$key] = 'The ' . $key . ' field must be an integer';
                         break;
+                    } else {
+                        $attributes[$key] = $integer;
                     }
                 }
                 if ($r == 'boolean') {

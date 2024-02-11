@@ -27,10 +27,10 @@ class Cookie
                 $token = Application::$app->db->where('token', "=", $token)->first();
                 if ($token) {
                     // check if token is expired
-                    if (strtotime($token->expires_at) > time()) {
+                    if (strtotime($token['expires_at']) > time()) {
                         // get user
                         Application::$app->db->table("users");
-                        $user = Application::$app->db->where('id', "=", $token->user_id)->first();
+                        $user = Application::$app->db->where('id', "=", $token['user_id'])->first();
                         if ($user) {
                             // set user in session
                             Application::$app->session->set('user', $user);

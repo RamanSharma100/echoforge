@@ -4,11 +4,17 @@ namespace Forge\core;
 
 use Forge\core\Console\Console;
 
+
 class Database
 {
 
     private $DB_TYPE, $host, $user, $pass, $dbname, $pdo, $error, $stmt;
     private $table, $conditions, $fillables, $gaurded;
+
+    private $INTERNAL_TABLES = [
+        'users',
+        'remember_tokens',
+    ];
 
     private Console|null $console = null;
 
@@ -179,6 +185,83 @@ class Database
         }
     }
 
+    public function find($id)
+    {
+        $query = "SELECT * FROM $this->table WHERE id = $id";
+        $this->stmt = $this->query($query);
+        $result = $this->fetch(\PDO::FETCH_ASSOC);
+        $result = json_decode(json_encode($result), true);
+        if ($result) {
+            $result = $this->removeGaurded($result);
+            $this->makeEmpty();
+            return $result;
+        } else {
+            $this->makeEmpty();
+            return null;
+        }
+    }
+
+    public function update($data)
+    {
+
+        $fillable = $this->fillables;
+        if (empty($fillable)) {
+            throw new \Exception('Fillables not set for ' . $this->table);
+        }
+        $fillable = $this->checkFillables($data);
+        $empty = array_diff($fillable, $data);
+        if (
+            count($empty) > 0
+        ) {
+            throw new \Exception('These fillables are not present in the data: ' . implode(', ', $empty));
+        }
+
+        $columns = '';
+        foreach ($data as $key => $value) {
+            $columns .= "$key = '$value', ";
+        }
+        $columns = rtrim($columns, ', ');
+
+        $query = "UPDATE $this->table SET $columns";
+        if (
+            $this->conditions != null
+        ) {
+            $conditions = implode(' AND ', $this->conditions);
+            if ($conditions) {
+                $query .= " WHERE $conditions";
+            }
+        }
+        $this->stmt = $this->query($query);
+        if ($this->stmt->rowCount() > 0) {
+            $this->makeEmpty();
+            return true;
+        } else {
+            $this->makeEmpty();
+            return false;
+        }
+    }
+
+    public function delete()
+    {
+        $query = "DELETE FROM $this->table";
+        if (
+            $this->conditions != null
+        ) {
+            $conditions = implode(' AND ', $this->conditions);
+            if ($conditions) {
+                $query .= " WHERE $conditions";
+            }
+        }
+        $this->stmt = $this->query($query);
+        if ($this->stmt->rowCount() > 0) {
+            $this->makeEmpty();
+            return true;
+        } else {
+            $this->makeEmpty();
+            return false;
+        }
+    }
+
     public function all()
     {
         $query = "SELECT * FROM $this->table";
@@ -225,10 +308,39 @@ class Database
 
     public function create($data)
     {
-        $fillable = $this->fillables;
+        $columns = implode(', ', array_keys($data));
+        $values = implode("', '", array_values($data));
+        if (
+            !in_array($this->table, $this->INTERNAL_TABLES)
+        ) {
 
-        print_r($fillable . PHP_EOL);
-        print_r($data . PHP_EOL);
+            $fillable = $this->fillables;
+            if (empty($fillable)) {
+                throw new \Exception('Fillables not set for ' . $this->table);
+            }
+            $fillable = $this->checkFillables($data);
+            $empty = array_diff($fillable, $data);
+            if (
+                count($empty) > 0
+            ) {
+                throw new \Exception('These fillables are not present in the data: ' . implode(', ', $empty));
+            }
+        }
+
+
+
+
+        $query = "INSERT INTO $this->table ($columns) VALUES ('$values')";
+
+        $this->stmt = $this->query($query);
+
+        if ($this->stmt->rowCount() > 0) {
+            $this->makeEmpty();
+            return $this->lastInsertId();
+        } else {
+            $this->makeEmpty();
+            return false;
+        }
     }
 
 
@@ -251,17 +363,7 @@ class Database
         return $stmt->rowCount();
     }
 
-    protected function update($sql, $params = [])
-    {
-        $stmt = $this->query($sql, $params);
-        return $stmt->rowCount();
-    }
 
-    protected function delete($sql, $params = [])
-    {
-        $stmt = $this->query($sql, $params);
-        return $stmt->rowCount();
-    }
 
     protected function dropTables(
         $tables = [],

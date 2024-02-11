@@ -55,7 +55,6 @@ class UserController extends Controller
             'name' => 'required|string',
             'email' => 'required|email',
             'age' => 'required|integer',
-            'phone' => 'required|string',
             'password' => 'required|string'
         ]);
 
@@ -66,6 +65,23 @@ class UserController extends Controller
             ]);
         }
 
-        dd($data);
+
+        $oldUser = User::where('email', "=", $data['email'])->first();
+
+        if ($oldUser) {
+            return $response->render('register', [
+                'errors' => ['Email already exists.'],
+                'old' => $data
+            ]);
+        }
+
+        User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'age' => (int)$data['age'],
+            'password' => password_hash($data['password'], PASSWORD_DEFAULT)
+        ]);
+
+        return $response->redirect('/login')->flash('success', 'You are now registered. Please login.');
     }
 }
