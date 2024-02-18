@@ -6,6 +6,8 @@ use Forge\core\Controllers\Auth;
 use App\Controllers\UserController;
 use App\Controllers\ContactController;
 
+
+
 Route::get('/', "home");
 
 Route::get('/home', function ($request, $response) {

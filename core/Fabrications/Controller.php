@@ -23,19 +23,19 @@ class Controller
             mkdir($this->controllerPath);
         }
 
-        if (file_exists($this->controllerPath . $this->controllerName . 'Controller.php')) {
+        if (file_exists($this->controllerPath . ucfirst($this->controllerName) . 'Controller.php')) {
             $this->console->log('Controller already exists!!' . PHP_EOL . 'Please check the app/Controllers directory');
             exit();
         }
 
-        $controller = fopen($this->controllerPath . $this->controllerName . 'Controller.php', 'w');
+        $controller = fopen($this->controllerPath . ucfirst($this->controllerName) . 'Controller.php', 'w');
         $controllerContent = "<?php \n\nnamespace App\Controllers;\n\nuse Forge\core\Controllers\Controller;\n\nclass " . ucfirst($this->controllerName) . "Controller extends Controller\n{\n \n \n}";
 
         fwrite($controller, $controllerContent);
         fclose($controller);
 
         $this->console->log('Controller created successfully!!' . PHP_EOL);
-        $this->console->log('Created file: ' . $this->controllerPath . $this->controllerName . 'Controller.php' . PHP_EOL);
+        $this->console->log('Created file: ' . $this->controllerPath . ucfirst($this->controllerName) . 'Controller.php' . PHP_EOL);
         $this->console->log('Please check the app/Controllers directory' . PHP_EOL);
     }
 }

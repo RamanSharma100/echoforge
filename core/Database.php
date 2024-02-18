@@ -85,6 +85,7 @@ class Database
                 $this->console->log('Database connected successfully!!');
                 return $this->pdo;
             } else {
+                $this->console->log($e);
                 exit($e->getMessage());
             }
         }

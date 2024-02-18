@@ -6,7 +6,7 @@ namespace Forge\core;
 class Migration extends Database
 {
 
-    public function create($table, $columns)
+    public function createMigration($table, $columns)
     {
         $this->upsertTable($table, $columns);
     }

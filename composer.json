@@ -3,7 +3,7 @@
     "autoload": {
         "psr-4": {
             "Forge\\": "./",
-            "App\\": "./app"
+            "App\\": "app/"
         }
     },
     "authors": [

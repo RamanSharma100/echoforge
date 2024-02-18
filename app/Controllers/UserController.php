@@ -65,7 +65,6 @@ class UserController extends Controller
             ]);
         }
 
-
         $oldUser = User::where('email', "=", $data['email'])->first();
 
         if ($oldUser) {

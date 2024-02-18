@@ -24,6 +24,10 @@ class Model
     public function createModel()
     {
 
+        if (!file_exists($this->modelPath)) {
+            mkdir($this->modelPath, 0777, true);
+        }
+
         if (file_exists($this->modelPath . ucfirst($this->tableName) . '.php')) {
             exit('Model already exists!!' . PHP_EOL . 'Please check the app/Models directory');
         }

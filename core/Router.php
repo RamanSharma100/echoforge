@@ -86,13 +86,13 @@ class Router
                 $callback[0] = $callback[0] . 'Controller';
             }
 
-            $callback[0] = $callback[0];
+            $callback[0] = ucfirst($callback[0]);
             try {
                 $controller = "App\\Controllers\\$callback[0]";
 
-                if (!file_exists(Application::$ROOT_DIR . "/app/controllers/$callback[0].php")) {
+                if (!file_exists(Application::$ROOT_DIR . "/app/Controllers/$callback[0].php")) {
                     $callback[0] = lcfirst($callback[0]);
-                    if (!file_exists(Application::$ROOT_DIR . "/app/controllers/$callback[0].php")) {
+                    if (!file_exists(Application::$ROOT_DIR . "/app/Controllers/$callback[0].php")) {
                         $this->response->setStatusCode(404);
                         echo "The controller $callback[0] does not exist";
                         exit;
@@ -130,6 +130,9 @@ class Router
         }
 
         if (is_array($callback)) {
+
+
+
             $callback[0] = new $callback[0]();
 
             if (!method_exists($callback[0], $callback[1])) {
