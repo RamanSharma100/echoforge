@@ -2,9 +2,16 @@
 
 namespace Forge\core;
 
-
-class Migration extends Database
+interface MigrationContract
 {
+    public function up();
+}
+
+
+class Migration extends Database implements MigrationContract
+{
+
+    public function up() {}
 
     public function createMigration($table, $columns)
     {

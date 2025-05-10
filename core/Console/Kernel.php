@@ -15,6 +15,7 @@ class Kernel
         Commands\ServerCommand::class,
         Commands\FabricateCommand::class,
         Commands\MigrationCommand::class,
+        Commands\FrontendCommand::class
     ];
 
     public function __construct()
@@ -43,8 +44,6 @@ class Kernel
     public function registerCommands()
     {
         $this->app = new \Symfony\Component\Console\Application();
-
-
 
         foreach ($this->commands as $command) {
             $this->app->add(new $command);

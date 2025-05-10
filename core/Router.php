@@ -175,15 +175,50 @@ class Router
 
     public function renderView($view)
     {
-        $this->renderViewWithoutLayout($view);
+        $frontendFramework = $_ENV['FRONTEND_FRAMEWORK'] ?? 'default';
+        $frontendBuildTool = $_ENV['FRONTEND_BUILD_TOOL'] ?? 'default';
+        $frontendDirName = $_ENV['FRONTEND_DIR_NAME'] ?? 'views';
+
+        if (
+            $frontendFramework === 'default'
+            && $frontendBuildTool === 'default'
+        ) {
+            $this->renderViewWithoutLayout($view, $frontendDirName ?? 'views');
+        } else {
+            $this->renderMixins($view);
+        }
     }
 
-    public function renderViewWithoutLayout($view)
+    public function renderViewWithoutLayout($view, $dir = 'views')
     {
         ob_start();
 
-        include_once Application::$ROOT_DIR . "/views/$view.php";
+        include_once Application::$ROOT_DIR . "/$dir/$view.php";
 
         ob_end_flush();
+    }
+
+    public function renderMixins($view)
+    {
+        $frontendDistPath = Application::$ROOT_DIR . '/public/dist';
+        $requestedFile = $frontendDistPath . $view;
+
+        if (file_exists($requestedFile)) {
+            $mimeType = mime_content_type($requestedFile);
+            header("Content-Type: $mimeType");
+            readfile($requestedFile);
+            exit;
+        }
+
+        $indexFile = $frontendDistPath . "/index.html";
+        if (file_exists($indexFile)) {
+            header("Content-Type: text/html");
+            readfile($indexFile);
+            exit;
+        }
+
+        $this->response->setStatusCode(404);
+        echo "404 Not Found";
+        exit;
     }
 }
