@@ -2,10 +2,8 @@
 
 namespace Forge;
 
-
 class App extends core\Console\Kernel
 {
-
 
     private $container = [];
 
