@@ -3,6 +3,7 @@
 namespace Forge\core\Frontend;
 
 use Forge\core\Console\Console;
+use Forge\core\Console\Kernel;
 use Forge\core\Utilities\Methods;
 
 class InitializeFrontend
@@ -56,5 +57,22 @@ class InitializeFrontend
         }
     }
 
-    private function setupReact() {}
+    private function setupReact()
+    {
+        $root = Kernel::$rootDir;
+        $frontendDir = "$root/$this->frontendDirName";
+
+        $this->console->log("\n");
+
+        if (is_dir($frontendDir) && (count(scandir($frontendDir)) === 2)) {
+            if (!is_writable($frontendDir)) {
+                $this->console->log("<error>Directory $frontendDir is not writable</error>");
+                return;
+            }
+            $this->console->log("<info>Directory $frontendDir already exists</info>");
+            return;
+        }
+
+        Scripts::setupReact($frontendDir, $this->frontendBundler, $this->frontendWay, $this->pkgManager, $this->typescript, true);
+    }
 }

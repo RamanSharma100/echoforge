@@ -10,6 +10,7 @@ class Kernel
 {
 
     public $app;
+    public static $rootDir;
 
     protected $commands = [
         Commands\ServerCommand::class,
@@ -21,6 +22,7 @@ class Kernel
     public function __construct()
     {
         $path = $_ENV['APP_BASE_PATH'] ?? dirname(dirname(__DIR__));
+        self::$rootDir = $path;
         $this->loadEnv($path);
         $this->commands = array_merge($this->commands, $this->getCommands());
     }
